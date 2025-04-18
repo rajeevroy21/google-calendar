@@ -36,32 +36,32 @@ function App() {
       alert("Please log in first.");
       return;
     }
-  
+
     const event = {
       summary: title,
       description: desc,
       start: {
         dateTime: new Date(start).toISOString(),
         timeZone: "Asia/Kolkata",
-      }
+      },
+      // Removed the 'end' time
     };
-  
+
     try {
       const response = await axios.post("http://localhost:5000/addevent", {
         tokens,
         event,
       });
-  
+
       // Redirect the user to Google Calendar with the new event
       const googleCalendarUrl = response.data.googleCalendarUrl;
       window.location.href = googleCalendarUrl;
-  
+
     } catch (err) {
       console.error(err);
       alert("Failed to add event");
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">

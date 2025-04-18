@@ -45,13 +45,23 @@ app.post("/addevent", async (req, res) => {
 
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
+  // If no end time is provided, set the event duration to 1 hour.
+  if (!event.end) {
+    const startTime = new Date(event.start.dateTime);
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour later
+    event.end = {
+      dateTime: endTime.toISOString(),
+      timeZone: "Asia/Kolkata", // same timezone as the start
+    };
+  }
+
   try {
     const response = await calendar.events.insert({
       calendarId: "primary",
       requestBody: event,
     });
 
-    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.summary)}&details=${encodeURIComponent(event.description)}&dates=${encodeURIComponent(new Date(event.start.dateTime).toISOString().replace(/-|:|\.\d+/g, ""))}/${encodeURIComponent(new Date(event.end.dateTime).toISOString().replace(/-|:|\.\d+/g, ""))}`;
+    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.summary)}&details=${encodeURIComponent(event.description)}&dates=${encodeURIComponent(new Date(event.start.dateTime).toISOString().replace(/-|:|\.\d+/g, ""))}`;
 
     res.status(200).json({ message: "Event added to calendar!", googleCalendarUrl });
   } catch (err) {
